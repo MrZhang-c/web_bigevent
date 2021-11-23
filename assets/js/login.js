@@ -83,8 +83,8 @@
 }) */
 
 /* 第二遍 */
-$(function () {
-    /* 登录和注册切换功能 */
+/* $(function () {
+    // 登录和注册切换功能
     // 点击了“去注册账号”链接
     $('#link_reg').on('click', function () {
         $('.login-box').hide();
@@ -96,7 +96,7 @@ $(function () {
         $('.login-box').show();
     })
 
-    /* 完成自定义校验规则功能 */
+    // 完成自定义校验规则功能
     // 1.从layUI中获取 form对象
     let form = layui.form;
     let layer = layui.layer;
@@ -114,7 +114,7 @@ $(function () {
         }
     })
 
-    /* 完成注册功能 */
+    // 完成注册功能
     // 监听注册form表单的提交事件
     $('#form_reg').on('submit', function (e) {
         // 阻止表单提交的默认行为
@@ -139,7 +139,7 @@ $(function () {
         })
     })
 
-    /* 完成登录功能 */
+    // 完成登录功能
     // 监听登录表单的提交事件
     $('#form_login').submit(function (e) {
         // 阻止表单提交的默认行为
@@ -162,6 +162,87 @@ $(function () {
                 localStorage.setItem('token', res.token);
                 // 当登录成功后，页面跳转到首页中
                 location.href='index.html'
+            }
+        })
+    })
+}) */
+
+/* 第三遍 */
+$(function () {
+    // 点击了“去注册账号”链接
+    $('#link_reg').on('click', function () {
+        $('.login-box').hide();
+        $('.reg-box').show()
+    })
+    // 点击了“去登录”链接
+    $('#link_login').on('click', function () {
+        $('.reg-box').hide()
+        $('.login-box').show()
+    })
+
+    // 自定义校验规则
+    // 从layui中获取form对象
+    let form = layui.form;
+    let layer = layui.layer;
+    form.verify({
+        // 以数组的方式自定义校验规则
+        pwd: [/^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'],
+        // 以函数的方式自定义校验规则，以形参的方式获取输入框中的内容
+        repwd: function (value) {
+            // 获取密码框中的内容,已属性名的查找方式获取
+            let pwd = $('.reg-box [name=password]').val();
+            // 判断两次密码是否输入的一致
+            if (pwd !== value) {
+                return '两次密码输入的不一致!';
+            }
+        }
+    })
+
+    // 监听注册表单的提交事件
+    $('#form_reg').on('submit', function (e) {
+        // 阻止表单提交默认行为
+        e.preventDefault();
+        // 快速的获取form表单中的内容
+        let data = $(this).serialize();
+        // 请求Ajax请求，来注册用户
+        $.ajax({
+            method: 'POST',
+            url: '/api/reguser',
+            data: data,
+            success(res) {
+                // console.log(res);
+                // 判断用户是否注册成功
+                if (res.status !== 0) {
+                    return layer.msg(res.message);
+                }
+                layer.msg(res.message);
+                // 当用户注册成功后，返回到登录页面进行登录
+                $('#link_login').click(); // 使系统模拟人的点击行为
+            }
+        })
+    })
+
+    // 监听登录表单的提交事件
+    $('#form_login').submit(function (e) {
+        // 阻止表单提交的默认行为
+        e.preventDefault();
+        // 快速获取表单中的内容
+        let data = $(this).serialize();
+        // 发起Ajax请求，用户登录
+        $.ajax({
+            method: 'POST',
+            url: '/api/login',
+            data: data,
+            success(res) {
+                console.log(res);
+                // 判断用户是否登录成功
+                if (res.status !== 0) {
+                    return layer.msg(res.message)
+                }
+                // 当用户登录成功后，将获取到的token信息保存到本地存储中
+                localStorage.setItem('token', res.token);
+                // 当用户登录成功后，叫页面跳转到首页
+                location.href = 'index.html'
             }
         })
     })
