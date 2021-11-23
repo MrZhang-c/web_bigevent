@@ -1,4 +1,5 @@
-$(function () {
+/* 第一遍 */
+/* $(function () {
     // 点击“去注册账号”的链接
     $('#link_reg').on('click', function () {
         $('.reg-box').show();
@@ -75,6 +76,91 @@ $(function () {
                 // 登录成功后，将获取到的token信息保存到本地存储中
                 localStorage.setItem('token', res.token);
                 // 登录成功后，页面跳转到后台主页
+                location.href='index.html'
+            }
+        })
+    })
+}) */
+
+/* 第二遍 */
+$(function () {
+    /* 登录和注册切换功能 */
+    // 点击了“去注册账号”链接
+    $('#link_reg').on('click', function () {
+        $('.login-box').hide();
+        $('.reg-box').show();
+    })
+    // 点击了“去登录”链接
+    $('#link_login').on('click', function () {
+        $('.reg-box').hide();
+        $('.login-box').show();
+    })
+
+    /* 完成自定义校验规则功能 */
+    // 1.从layUI中获取 form对象
+    let form = layui.form;
+    let layer = layui.layer;
+    // 2.通过 form.verify()函数自定义校验规则
+    form.verify({
+        pwd: [/^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'],
+        // 自定义确认密码一致的校验规则
+        repwd: function (value) {
+            // 获取密码框中的值
+            let pwd = $('.reg-box [name=password]').val();
+            // 判断密码框和确认密码框中的密码是否一致
+            if (pwd !== value) {
+                return '两次密码不一致！'
+            }
+        }
+    })
+
+    /* 完成注册功能 */
+    // 监听注册form表单的提交事件
+    $('#form_reg').on('submit', function (e) {
+        // 阻止表单提交的默认行为
+        e.preventDefault();
+        // 快速获取form表单中的数据
+        let data = $(this).serialize();
+        // 发起Ajax请求，注册用户
+        $.ajax({
+            method: 'post',
+            url: '/api/reguser',
+            data: data,
+            success(res) {
+                // console.log(res);
+                // 判断用户是否注册成功
+                if (res.status !== 0) {
+                    return layer.msg(res.message);
+                }
+                layer.msg(res.message);
+                // 当用户注册完成后，返回到登录页面进行登录
+                $('#link_login').click(); // 使系统模拟人的点击行为
+            }
+        })
+    })
+
+    /* 完成登录功能 */
+    // 监听登录表单的提交事件
+    $('#form_login').submit(function (e) {
+        // 阻止表单提交的默认行为
+        e.preventDefault();
+        // 快速的获取表单中的数据
+        let data = $('#form_login').serialize();
+        // 发起Ajax请求，登录用户
+        $.ajax({
+            method: 'POST',
+            url: '/api/login',
+            data: data,
+            success(res) {
+                console.log(res);
+                // 判断用户是否登录成功
+                if (res.status !== 0) {
+                    return layer.msg(res.message);
+                }
+                layer.msg(res.message);
+                // 当用户登录成功后，将获取到的token信息保存到本地存储中
+                localStorage.setItem('token', res.token);
+                // 当登录成功后，页面跳转到首页中
                 location.href='index.html'
             }
         })
