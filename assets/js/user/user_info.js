@@ -1,4 +1,5 @@
-$(function () {
+/* 第一遍 */
+/* $(function () {
     // 获取layui中的form对象
     let form = layui.form;
 
@@ -69,4 +70,130 @@ $(function () {
         })
     })
 })
+ */
 
+/* 第二遍 */
+/* $(function () {
+    // 自定义校验规则
+    layui.form.verify({
+        nickname(value) {
+            if (value.length > 6) {
+                return '昵称不能超过 1~6 位!'
+            }
+        }
+    })
+
+    // 初始化用户的基本信息
+    initUserInfo()
+
+    // 完成重置功能
+    $('#btnReset').on('click', function (e) { // 为重置按钮绑定点击事件
+        // 阻止表单重置的默认行为
+        e.preventDefault();
+        // 重新调用初始化用户的函数
+        initUserInfo()
+    })
+
+    // 监听表单的提交事件，完成更改用户的基本信息
+    $('.layui-form').on('submit', function (e) {
+        // 阻止表单提交的默认行为
+        e.preventDefault();
+        // 发起Ajax请求，修改用户的基本信息
+        $.ajax({
+            method: 'POST',
+            url: '/my/userinfo',
+            data: $(this).serialize(),
+            success(res) {
+                // console.log(res);
+                // 判断用户是否修改成功
+                if (res.status !== 0) { 
+                    return layui.layer.msg(res.message)
+                }
+                layui.layer.msg(res.message)
+                // 用户信息修改成功后，要渲染父页面的信息
+                window.parent.getUserInfo(); // 调用父页面的方法
+            }
+        })
+    })
+})
+
+function initUserInfo() {
+    // 发起Ajax请求，获取用户基本信息
+    $.ajax({
+        method: 'get',
+        url: '/my/userinfo',
+        success(res) {
+            // console.log(res);
+            // 判断用户是否请求成功
+            if (res.status !== 0) {
+                return layui.layer.msg(res.message);
+            }
+            // 表示请求成功，调用 `form.val()` 方法快速的为表单赋值
+            layui.form.val('formUserInfo', res.data)
+        }
+    })
+} */
+
+/* 第三遍 */
+$(function () {
+    // 自定义校验规则
+    layui.form.verify({
+        nickname(value) {
+            if (value.length > 6) {
+                return '昵称不能超过 1~6 位!'
+            }
+        }
+    })
+
+    // 调用初始化用户基本信息的函数
+    initUserInfo();
+
+    // 完成重置功能
+    $('#btnReset').on('click', function (e) {
+        // 阻止表单重置的默认行为
+        e.preventDefault();
+        // 从新初始化用户的基本信息
+        initUserInfo();
+    })
+
+    // 监听表单的提交事件，完成用户基本信息的更新
+    $('.layui-form').submit(function (e) {
+        // 阻止表单的默认提交行为
+        e.preventDefault();
+        // 发起Ajax请求，更改用户的基本信息
+        $.ajax({
+            method: 'POST',
+            url: '/my/userinfo',
+            data: $(this).serialize(),
+            success(res) {
+                // console.log(res);
+                // 判断用户信息是否修改成功
+                if (res.status !== 0) { 
+                    return layui.layer.msg(res.message);
+                }
+                // 表示修改成功，提示用户
+                layui.layer.msg(res.message)
+                // 用户更改成功后，将父页面的信息也进行更新
+                window.parent.getUserInfo() // 调用父页面的方法
+            }
+        })
+    })
+})
+
+// 初始化用户的基本信息
+function initUserInfo() {
+    // 发起Ajax请求，获取用户的基本信息
+    $.ajax({
+        method: 'get',
+        url: '/my/userinfo',
+        success(res) {
+            // console.log(res);
+            // 判断用户是否获取成功
+            if (res.status !== 0) {
+                return layui.layer.msg(res.message);
+            }
+            // 表示获取成功,调用 form.val() 方法获取的为form表单赋值
+            layui.form.val('formUserInfo', res.data);
+        }
+    })
+}
