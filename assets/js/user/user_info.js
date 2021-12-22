@@ -135,7 +135,7 @@ function initUserInfo() {
 } */
 
 /* 第三遍 */
-$(function () {
+/* $(function () {
     // 自定义校验规则
     layui.form.verify({
         nickname(value) {
@@ -194,6 +194,69 @@ function initUserInfo() {
             }
             // 表示获取成功,调用 form.val() 方法获取的为form表单赋值
             layui.form.val('formUserInfo', res.data);
+        }
+    })
+} */
+
+$(function () {
+    // 自定义校验规则
+    layui.form.verify({
+        nickname(value) {
+            if (value.length > 6) {
+                return '昵称的长度只能到 1 ~6 位字符'
+            }
+        }
+    })
+
+    // 调用initUserInfo函数，初始化用户的基本信息
+    initUserInfo();
+
+    // 完成重置功能
+    $('#btnReset').on('click', function (e) {
+        // 阻止重置按钮默认行为
+        e.preventDefault();
+        // 重新调用initUserInfo函数，从新初始化用户信息
+        initUserInfo()
+    })
+
+    // 监听表单的提交事件，修改用户信息
+    $('.layui-form').submit(function (e) {
+        // 阻止表单的提交的默认行为
+        e.preventDefault();
+        // 发起Ajax请求，修改用户的信息
+        $.ajax({
+            method: "POST",
+            url: '/my/userinfo',
+            data: $(this).serialize(),
+            success(res) {
+                console.log(res);
+                // 判断用户是否修改成功
+                if (res.status !== 0) { 
+                    layui.layer.msg(res.message)
+                }
+                // 表示修改成功,则进行提示
+                layui.layer.msg(res.message)
+                // 用户的信息修盖完毕后，将首页的信息也进行更新，可以直接调用父页面的方法来进行更新
+                window.parent.getUserInfo()
+            }
+        })
+    })
+})
+
+// 初始化用户的基本信息
+function initUserInfo() {
+    // 发起Ajax请求，获取用户的信息
+    $.ajax({
+        method: 'get',
+        url: '/my/userinfo',
+        success(res) {
+            // console.log(res);
+            // 判断用户是否获取成功
+            if (res.status !== 0) {
+                return layui.layer.msg(res.message)
+            }
+            // 表示获取成功，调用 form.val() 方法，为表单快速的赋值
+            layui.form.val('formUserInfo', res.data)
         }
     })
 }

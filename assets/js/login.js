@@ -168,7 +168,7 @@
 }) */
 
 /* 第三遍 */
-$(function () {
+/* $(function () {
     // 点击了“去注册账号”链接
     $('#link_reg').on('click', function () {
         $('.login-box').hide();
@@ -243,6 +243,84 @@ $(function () {
                 localStorage.setItem('token', res.token);
                 // 当用户登录成功后，叫页面跳转到首页
                 location.href = 'index.html'
+            }
+        })
+    })
+}) */
+
+/* 第四遍 */
+$(function () {
+    // 点击了去注册账号
+    $('#link_reg').on('click', function () {
+        // 隐藏登录框，显示注册框
+        $('.login-box').hide()
+        // 显示注册框
+        $('.reg-box').show()
+    })
+
+    // 点击了“去登录”按钮
+    $('#link_login').on('click', function () {
+        // 隐藏注册框，显示登录框
+        $('.reg-box').hide()
+        // 显示登录框
+        $('.login-box').show()
+    })
+
+    // 自定义表单的验证规则
+    layui.form.verify({
+        pwd: [/^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'],
+        // 自定义二次密码校验
+        repwd(value) {
+            if (value !== $('.reg-box [name=password]').val()) {
+                return '两次密码输入的不一致!'
+            }
+        }
+    })
+
+    // 监听注册表单的注册按钮
+    $('#form_reg').on('submit', function (e) {
+        // 阻止表单的默认行为
+        e.preventDefault();
+        // 发起Ajax请求，注册用户
+        $.ajax({
+            method: 'POST',
+            url: '/api/reguser',
+            data: $(this).serialize(),
+            success(res) {
+                console.log(res);
+                // 判断用户是否注册成功
+                if (res.status !== 0) {
+                    return layui.layer.msg(res.message);
+                }
+                // 表示注册成功
+                layui.layer.msg(res.message);
+                // 当用户注册成功后，使系统模拟人的点击行为，跳转回登录页中
+                $('#link_login').click()
+            }
+        })
+    })
+
+    // 监听登录表单的提交事件
+    $('#form_login').on('submit', function (e) {
+        // 阻止表单的默认行为
+        e.preventDefault();
+        // 请求Ajax请求，登录用户
+        $.ajax({
+            method: 'POST',
+            url: '/api/login',
+            data: $(this).serialize(),
+            success(res) {
+                console.log(res);
+                // 判断用户是否登录成功
+                if (res.status !== 0) { 
+                    return layui.layer.msg(res.message)
+                }
+                // 表示用户登录成功
+                layui.layer.msg(res.message)
+                // 登录成功后，将获取到的token信息保存到本地存储中
+                localStorage.setItem('token',res.token)
+                // 跳转到，首页
+                location.href='index.html'
             }
         })
     })

@@ -132,7 +132,7 @@ function renderAvatar(res) {
 } */
 
 /* 第三遍 */
-$(function () {
+/* $(function () {
     // 调用 getUserInfo 函数，获取用户的基本信息
     getUserInfo();
 
@@ -186,6 +186,65 @@ function renderAvatar(res) {
         // 渲染图片头像
         $('.layui-nav-img').attr('src', res.user_pic).show()
         // 将文本头像进行隐藏
+        $('.text-avatar').hide()
+    }
+} */
+
+/* 第四遍 */
+$(function () {
+    // 调用 renderAvatar 获取用户的基本信息
+    getUserInfo()
+
+    // 完成提出功能
+    $('#btnLogout').on('click', function () {
+        layui.layer.confirm('确认退出吗?', { icon: 3, itle: '提示' }, function (index) {
+            // 清空本地的token信息
+            localStorage.removeItem('token')
+
+            // 从新跳转回登录页面
+            location.href='login.html'
+           
+            // 关闭提示框
+            layui.layer.close(index);
+        })
+    })
+})
+
+// 获取用户的基本信息
+function getUserInfo() {
+    // 请求Ajax，获取用户的基本信息
+    $.ajax({
+        method: 'GET',
+        url: '/my/userinfo',
+        success(res) {
+            // console.log(res);
+            // 判断用户的基本信息是否获取成功
+            if (res.status !== 0) {
+                return layui.layer.msg(res.message)
+            }
+            // 表示获取成功，调用 renderAvatar 函数，渲染结构
+            renderAvatar(res.data)
+        }
+    })
+}
+
+function renderAvatar(res) {
+    // 获取用户名称，如果有昵称先展示昵称，没有则展示用户名称
+    let name = res.nickname || res.username;
+    // 表示获取成功，渲染欢迎文本
+    $('#welcome').html('欢迎&nbsp;&nbsp' + name)
+    // 判断头像对象是否为null
+    if (res.user_pic === null) {
+        // 表示头像为空，则展示文本头像
+        // 先获取文本头像的第一个字母或汉字进行展示，如果是字母则转换为大写
+        let files = name[0].toUpperCase();
+        $('.text-avatar').html(files).show();
+        // 隐藏图片头像框
+        $('.layui-nav-img').hide()
+    } else {
+        // 渲染图片头像框，隐藏文本头像框
+        $('.layui-nav-img').attr('src', res.user_pic).show()
+        // 将文本头像框进行隐藏
         $('.text-avatar').hide()
     }
 }
